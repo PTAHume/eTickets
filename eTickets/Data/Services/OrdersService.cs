@@ -1,6 +1,5 @@
 ﻿using eTickets.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,9 +16,10 @@ namespace eTickets.Data.Services
 
         public async Task<List<Order>> GetOrdersByUserIdAndRoleAsync(string userId, string userRole)
         {
-            var orders = await _context.Orders.Include(n => n.OrderItems).ThenInclude(n => n.Movie).Include(n => n.User).ToListAsync();
+            var orders = await _context.Orders.Include(n => n.OrderItems)
+                .ThenInclude(n => n.Movie).Include(n => n.User).ToListAsync();
 
-            if(userRole != "Admin")
+            if (userRole != "Admin")
             {
                 orders = orders.Where(n => n.UserId == userId).ToList();
             }
@@ -37,15 +37,14 @@ namespace eTickets.Data.Services
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
 
-            foreach (var item in items)
+            foreach (var orderItem in items.Select(item => new OrderItem()
             {
-                var orderItem = new OrderItem()
-                {
-                    Amount = item.Amount,
-                    MovieId = item.Movie.Id,
-                    OrderId = order.Id,
-                    Price = item.Movie.Price
-                };
+                Amount = item.Amount,
+                MovieId = item.Movie.Id,
+                OrderId = order.Id,
+                Price = item.Movie.Price
+            }))
+            {
                 await _context.OrderItems.AddAsync(orderItem);
             }
             await _context.SaveChangesAsync();

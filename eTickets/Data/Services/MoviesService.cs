@@ -2,8 +2,6 @@
 using eTickets.Data.ViewModels;
 using eTickets.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,13 +33,12 @@ namespace eTickets.Data.Services
             await _context.SaveChangesAsync();
 
             //Add Movie Actors
-            foreach (var actorId in data.ActorIds)
+            foreach (var newActorMovie in data.ActorIds.Select(actorId => new Actor_Movie()
             {
-                var newActorMovie = new Actor_Movie()
-                {
-                    MovieId = newMovie.Id,
-                    ActorId = actorId
-                };
+                MovieId = newMovie.Id,
+                ActorId = actorId
+            }))
+            {
                 await _context.Actors_Movies.AddAsync(newActorMovie);
             }
             await _context.SaveChangesAsync();
@@ -52,7 +49,8 @@ namespace eTickets.Data.Services
             var movieDetails = await _context.Movies
                 .Include(c => c.Cinema)
                 .Include(p => p.Producer)
-                .Include(am => am.Actors_Movies).ThenInclude(a => a.Actor)
+                .Include(am => am.Actors_Movies)
+                .ThenInclude(a => a.Actor)
                 .FirstOrDefaultAsync(n => n.Id == id);
 
             return movieDetails;
@@ -74,7 +72,7 @@ namespace eTickets.Data.Services
         {
             var dbMovie = await _context.Movies.FirstOrDefaultAsync(n => n.Id == data.Id);
 
-            if(dbMovie != null)
+            if (dbMovie != null)
             {
                 dbMovie.Name = data.Name;
                 dbMovie.Description = data.Description;
@@ -94,13 +92,12 @@ namespace eTickets.Data.Services
             await _context.SaveChangesAsync();
 
             //Add Movie Actors
-            foreach (var actorId in data.ActorIds)
+            foreach (var newActorMovie in data.ActorIds.Select(actorId => new Actor_Movie()
             {
-                var newActorMovie = new Actor_Movie()
-                {
-                    MovieId = data.Id,
-                    ActorId = actorId
-                };
+                MovieId = data.Id,
+                ActorId = actorId
+            }))
+            {
                 await _context.Actors_Movies.AddAsync(newActorMovie);
             }
             await _context.SaveChangesAsync();

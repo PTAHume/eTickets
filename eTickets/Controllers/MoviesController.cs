@@ -1,13 +1,10 @@
-﻿using eTickets.Data;
-using eTickets.Data.Services;
+﻿using eTickets.Data.Services;
 using eTickets.Data.Static;
 using eTickets.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,11 +34,9 @@ namespace eTickets.Controllers
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                //var filteredResult = allMovies.Where(n => n.Name.ToLower().Contains(searchString.ToLower()) || n.Description.ToLower().Contains(searchString.ToLower())).ToList();
-
-                var filteredResultNew = allMovies.Where(n => string.Equals(n.Name, searchString, StringComparison.CurrentCultureIgnoreCase) || string.Equals(n.Description, searchString, StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                return View("Index", filteredResultNew);
+                var filteredResult = allMovies.Where(n => n.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                                                          n.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
+                return View("Index", filteredResult);
             }
 
             return View("Index", allMovies);
